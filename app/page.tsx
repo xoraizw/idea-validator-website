@@ -3,15 +3,39 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
+type CtaGoal = 'waitlist' | 'preorder' | 'call';
+
+const CTA_OPTIONS: { value: CtaGoal; label: string; hint: string }[] = [
+  { value: 'waitlist', label: 'Waitlist', hint: 'Measure interest' },
+  { value: 'preorder', label: 'Pre-order', hint: 'Measure willingness to pay' },
+  { value: 'call', label: 'Book a call', hint: 'Measure high intent' },
+];
+
 const EXAMPLES = [
   'A time-tracking tool for freelancers that auto-generates invoices and sends payment reminders.',
   'An AI writing assistant for developers that turns code comments into documentation.',
   'A shared inbox for small teams that routes support emails using AI triage.',
 ];
 
+const INPUT =
+  'w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors';
+const LABEL = 'block text-sm font-medium text-gray-300 mb-1.5';
+
 export default function Home() {
   const [name, setName] = useState('');
-  const [prompt, setPrompt] = useState('');
+  const [description, setDescription] = useState('');
+  const [audience, setAudience] = useState('');
+  const [ctaGoal, setCtaGoal] = useState<CtaGoal>('waitlist');
+
+  // Optional fields
+  const [showDetails, setShowDetails] = useState(false);
+  const [problem, setProblem] = useState('');
+  const [outcome, setOutcome] = useState('');
+  const [features, setFeatures] = useState('');
+  const [differentiator, setDifferentiator] = useState('');
+  const [price, setPrice] = useState('');
+  const [tone, setTone] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ slug: string; url: string } | null>(null);
   const [error, setError] = useState('');
@@ -26,13 +50,22 @@ export default function Home() {
       const res = await fetch('/api/pages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, prompt }),
+        body: JSON.stringify({
+          name,
+          description,
+          audience,
+          ctaGoal,
+          problem,
+          outcome,
+          features,
+          differentiator,
+          price,
+          tone,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Something went wrong');
       setResult(data);
-      setName('');
-      setPrompt('');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
@@ -80,29 +113,142 @@ export default function Home() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">Product name</label>
+            <label className={LABEL}>Product name</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. TaskFlow"
               required
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
+              className={INPUT}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">
-              Describe your product
-            </label>
+            <label className={LABEL}>What does it do?</label>
             <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="What does it do, who is it for, what problem does it solve?"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="One line: what it does and the problem it solves."
               required
-              rows={4}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors resize-none"
+              rows={3}
+              className={`${INPUT} resize-none`}
             />
           </div>
+
+          <div>
+            <label className={LABEL}>Who is it for?</label>
+            <input
+              value={audience}
+              onChange={(e) => setAudience(e.target.value)}
+              placeholder="e.g. freelance designers, not just 'businesses'"
+              required
+              className={INPUT}
+            />
+          </div>
+
+          <div>
+            <label className={LABEL}>What do you want to measure?</label>
+            <div className="grid grid-cols-3 gap-2">
+              {CTA_OPTIONS.map((opt) => {
+                const active = ctaGoal === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setCtaGoal(opt.value)}
+                    className={`rounded-lg border px-3 py-2.5 text-left transition-colors ${
+                      active
+                        ? 'border-indigo-500 bg-indigo-500/10'
+                        : 'border-gray-700 bg-gray-900 hover:border-gray-600'
+                    }`}
+                  >
+                    <span className="block text-sm font-medium">{opt.label}</span>
+                    <span className="block text-xs text-gray-500">{opt.hint}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Optional details */}
+          <button
+            type="button"
+            onClick={() => setShowDetails((v) => !v)}
+            className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-200 transition-colors pt-1"
+          >
+            <svg
+              className={`w-3.5 h-3.5 transition-transform ${showDetails ? 'rotate-90' : ''}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+            Add details for a sharper page (optional)
+          </button>
+
+          {showDetails && (
+            <div className="space-y-4 border-l-2 border-gray-800 pl-4">
+              <div>
+                <label className={LABEL}>Problem & current alternative</label>
+                <textarea
+                  value={problem}
+                  onChange={(e) => setProblem(e.target.value)}
+                  placeholder="What painful thing do they do today? (spreadsheets, hiring someone, nothing…)"
+                  rows={2}
+                  className={`${INPUT} resize-none`}
+                />
+              </div>
+              <div>
+                <label className={LABEL}>Primary outcome</label>
+                <input
+                  value={outcome}
+                  onChange={(e) => setOutcome(e.target.value)}
+                  placeholder="The transformation, e.g. 'get paid on time, every time'"
+                  className={INPUT}
+                />
+              </div>
+              <div>
+                <label className={LABEL}>Key features</label>
+                <textarea
+                  value={features}
+                  onChange={(e) => setFeatures(e.target.value)}
+                  placeholder="3 features, one per line"
+                  rows={3}
+                  className={`${INPUT} resize-none`}
+                />
+              </div>
+              <div>
+                <label className={LABEL}>Differentiator / why now</label>
+                <input
+                  value={differentiator}
+                  onChange={(e) => setDifferentiator(e.target.value)}
+                  placeholder="Unlike X, we…"
+                  className={INPUT}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={LABEL}>Price point</label>
+                  <input
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="e.g. $19/mo"
+                    className={INPUT}
+                  />
+                </div>
+                <div>
+                  <label className={LABEL}>Tone / vibe</label>
+                  <input
+                    value={tone}
+                    onChange={(e) => setTone(e.target.value)}
+                    placeholder="playful, technical, minimal…"
+                    className={INPUT}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"
@@ -154,13 +300,13 @@ export default function Home() {
 
         {/* Examples */}
         <div className="mt-14">
-          <p className="text-xs text-gray-500 mb-3 uppercase tracking-wider">Example prompts</p>
+          <p className="text-xs text-gray-500 mb-3 uppercase tracking-wider">Example ideas</p>
           <div className="space-y-2">
             {EXAMPLES.map((ex) => (
               <button
                 key={ex}
                 type="button"
-                onClick={() => setPrompt(ex)}
+                onClick={() => setDescription(ex)}
                 className="w-full text-left bg-gray-900/50 hover:bg-gray-900 border border-gray-800 hover:border-gray-700 text-gray-400 hover:text-gray-200 text-sm px-4 py-3 rounded-lg transition-all"
               >
                 {ex}
