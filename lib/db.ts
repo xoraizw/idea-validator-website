@@ -88,7 +88,8 @@ export type Page = {
 
 export type SectionView = { section: string; count: number };
 
-export type PageWithStats = Page & { signups: number; sections: SectionView[] };
+export type Signup = { email: string; created_at: string };
+export type PageWithStats = Page & { signups: number; sections: SectionView[]; emails: Signup[] };
 
 // ── public API ─────────────────────────────────────────────────────────────
 
@@ -152,7 +153,12 @@ export async function getDashboardStats(): Promise<{
       'SELECT section, count FROM section_views WHERE page_id = ? ORDER BY count DESC',
       [p.id],
     );
-    return { ...p, signups, sections };
+    const emails = all<Signup>(
+      db,
+      'SELECT email, created_at FROM signups WHERE page_id = ? ORDER BY created_at DESC',
+      [p.id],
+    );
+    return { ...p, signups, sections, emails };
   });
 
   return { totalPages: pages.length, totalSignups, pages: pagesWithStats };

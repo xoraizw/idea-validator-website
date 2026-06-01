@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getDashboardStats, type PageWithStats } from '@/lib/db';
+import { EmailList } from './components/EmailList';
 
 export const dynamic = 'force-dynamic';
 
@@ -128,6 +129,9 @@ function PageRow({ page }: { page: PageWithStats }) {
         signups={page.signups}
         heroViews={page.sections.find((s) => s.section === 'hero')?.count ?? 0}
       />
+
+      {/* Email list */}
+      <EmailList emails={page.emails} slug={page.slug} />
     </div>
   );
 }

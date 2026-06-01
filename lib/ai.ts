@@ -20,6 +20,8 @@ HARD REQUIREMENTS — follow exactly:
 5. Email signup form requirements (BOTH forms in hero and cta must follow this):
    Replace SECTIONID with the actual section id (hero or cta).
    The form must POST as JSON to /api/signups with body { "slug": "{{SLUG}}", "email": "..." }.
+   The API returns { success: true, message: "..." } on success, { success: false, error: "..." } on failure.
+   ALWAYS check data.success (not response.ok or data.message) to determine success or failure.
    Show inline success/error messages. The submit button should say "Join the waitlist".
 
 6. Analytics tracking — add this script once, near </body>:
