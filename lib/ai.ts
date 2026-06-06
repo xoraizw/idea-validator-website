@@ -190,7 +190,8 @@ const BUILDER_SYSTEM = `You are a world-class front-end developer and visual des
 2. <head> must include:
    - <script src="https://cdn.tailwindcss.com"></script>
    - <meta name="viewport" content="width=device-width, initial-scale=1">
-   - A <style> block with all custom CSS (animations, glassmorphism, reveals, glow, accordion)
+   - A <style> block that MUST start with: *,*::before,*::after{box-sizing:border-box} html,body{margin:0;padding:0;width:100%;overflow-x:hidden}
+   - Every top-level section must be width:100% with NO horizontal margin. Inner content uses a max-width container (max-width:1200px;margin:0 auto;padding:0 1.5rem)
 3. Sections in order — each MUST have both id AND data-section with the same value:
    - id="hero"          — animated background, headline, sub-headline, email form
    - id="features"      — glassmorphism benefit cards with SVG icons
