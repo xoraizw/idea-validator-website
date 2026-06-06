@@ -21,6 +21,7 @@ export type ProductBrief = {
   price?: string; // optional price point for willingness-to-pay tests
   tone?: string; // brand vibe
   accent?: string; // color preference
+  extraContext?: string; // Q&A answers from the dynamic discovery step
 };
 
 // ── Layout seeding: keep generated pages from all looking identical ──────────
@@ -119,7 +120,50 @@ function briefToText(brief: ProductBrief): string {
   if (brief.differentiator) lines.push(`Differentiator / why now: ${brief.differentiator}`);
   if (brief.price) lines.push(`Price point: ${brief.price}`);
   if (brief.tone) lines.push(`Tone / brand vibe: ${brief.tone}`);
+  if (brief.extraContext) lines.push(`\nFounder's additional context (from discovery Q&A):\n${brief.extraContext}`);
   return lines.join('\n');
+}
+
+// ── Question generator ────────────────────────────────────────────────────────
+
+export type DiscoveryQuestion = { label: string; placeholder: string };
+
+const QUESTION_SYSTEM = `You generate sharp, product-specific discovery questions to help craft a better SaaS landing page.
+
+Given a product name, description, and CTA goal, produce exactly 3 questions that uncover the most valuable positioning information for THIS specific product. Each question should unlock a different dimension:
+1. The specific pain/frustration and current workaround (what do people do instead today?)
+2. The primary transformation or outcome users get (the before → after)
+3. A differentiator, key feature set, or pricing angle — whichever is most relevant to the CTA goal
+
+Rules:
+- Make questions specific to this product, never generic ("What's your value prop?" is banned)
+- Keep each question short and conversational
+- The placeholder must be a concrete example answer, not a description of what to write
+
+Return ONLY valid JSON — no markdown, no commentary:
+{"questions":[{"label":"...","placeholder":"..."},{"label":"...","placeholder":"..."},{"label":"...","placeholder":"..."}]}`;
+
+export async function generateDiscoveryQuestions(
+  name: string,
+  description: string,
+  ctaGoal: CtaGoal,
+): Promise<DiscoveryQuestion[]> {
+  const response = await client.chat.completions.create({
+    model: STRATEGY_MODEL,
+    max_tokens: 500,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: QUESTION_SYSTEM },
+      {
+        role: 'user',
+        content: `Product: ${name}\nDescription: ${description}\nCTA goal: ${ctaGoal}`,
+      },
+    ],
+  });
+
+  const raw = response.choices[0].message.content ?? '{"questions":[]}';
+  const parsed = JSON.parse(raw) as { questions?: DiscoveryQuestion[] };
+  return Array.isArray(parsed.questions) ? parsed.questions.slice(0, 4) : [];
 }
 
 async function generateStrategy(brief: ProductBrief, palette: Palette): Promise<Strategy> {

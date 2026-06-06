@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
       price: body.price?.trim() || undefined,
       tone: body.tone?.trim() || undefined,
       accent: body.accent?.trim() || undefined,
+      extraContext: body.extraContext?.trim() || undefined,
     };
 
     const html = await generateLandingPage(slug, brief);
