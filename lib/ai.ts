@@ -26,22 +26,64 @@ export type ProductBrief = {
 
 // ── Layout seeding: keep generated pages from all looking identical ──────────
 
-type Archetype = { name: string; note: string };
+type Archetype = {
+  name: string;
+  layout: string;    // overall page composition
+  geometry: string;  // background visual motif (hero + echoed in other sections)
+  heroVariant: string; // hero-specific layout instruction
+};
 type Palette = { name: string; from: string; to: string; accent: string };
 
 const ARCHETYPES: Archetype[] = [
-  { name: 'centered-hero', note: 'Centered hero with large headline, single column, generous whitespace.' },
-  { name: 'split-hero', note: 'Two-column hero: copy left, a stylized product mockup/illustration right.' },
-  { name: 'editorial', note: 'Editorial/magazine feel: serif display headline, asymmetric layout, restrained accents.' },
-  { name: 'bold-saas', note: 'Bold modern SaaS: strong gradient band, big rounded cards, punchy contrast.' },
+  {
+    name: 'centered-orbs',
+    layout: 'Centered single-column hero. Features in a 3-column glassmorphism card grid. Steps horizontal with a gradient connector line. Stats bar spans full width.',
+    geometry: 'Three large blurred gradient orbs that float slowly at different speeds and directions (CSS @keyframes, 14-22s). Echo smaller orbs (opacity 0.06) in the features and CTA sections.',
+    heroVariant: 'Centered brand badge (pill chip with accent border) above headline. Massive centered headline. Sub-headline. Inline email+button row. Faint brand name as an oversized watermark behind the headline (opacity 0.04).',
+  },
+  {
+    name: 'split-particles',
+    layout: 'Two-column hero: copy on the left (55%), right side (45%) has animated floating UI-card mockups stacked at slight angles. Features in alternating left-right image+text rows. Steps as a vertical timeline.',
+    geometry: 'Particle field: 50 small dots (2-3px) placed randomly, each drifting slowly with individual animation-duration (8-20s range). Faint connecting lines between nearby dots via SVG. Echo a minimal version in the footer.',
+    heroVariant: 'Left-aligned brand name as styled text logo at top left inside the hero. Large left-aligned headline (gradient on last word). Description. CTA below. Right column: 2-3 stacked frosted-glass card mockups showing the product concept, rotating in slightly.',
+  },
+  {
+    name: 'bold-grid',
+    layout: 'Full-width bold layout. Hero headline spans 100% width in two lines, enormous font. Features in a bento grid (one large 2-col-span card + smaller cards). Steps as large numbered cards side by side. CTA is a full-width gradient band.',
+    geometry: 'Animated mesh grid: thin lines forming a grid (CSS background-image: linear-gradient), slowly shifting via @keyframes background-position. Diagonal slash of gradient color crossing the hero from top-right to bottom-left.',
+    heroVariant: 'Top-left brand name logo. Huge left-offset headline (clamp 4rem to 8vw). Gradient text on the entire headline. Badge chip on the right of the headline. Sub-headline below. CTA button left-aligned. Animated grid behind.',
+  },
+  {
+    name: 'editorial-rings',
+    layout: 'Editorial/magazine feel. Asymmetric hero: headline left, large accent number or icon right. Features as masonry-style cards of varying heights. Steps as a vertical numbered timeline with connecting dashed line.',
+    geometry: 'Concentric expanding rings: 4 rings radiating from a point (off-center, top-right), animated with scale and opacity pulses at different speeds. Use accent color, low opacity. Echo in CTA section.',
+    heroVariant: 'Brand name in a serif-feel large font top-left. Oversized display headline left-aligned (font-size: clamp(3.5rem,7vw,6rem), tight letter-spacing). Right side: large accent numeral or abstract SVG shape. One-line sub. Email form below.',
+  },
+  {
+    name: 'startup-glow',
+    layout: 'Startup Y-combinator feel. Hero has a glowing spotlight from above. Features in a horizontal 4-card row with icon-heavy cards. Steps compact 3-col. Social proof count below the hero CTA.',
+    geometry: 'A radial spotlight/glow cone from directly above the hero headline (conic-gradient or radial-gradient, accent color, very subtle). Animated flicker pulse (opacity 0.8-1.0, 3s ease-in-out infinite). Floating accent-colored geometric shapes (triangles, squares, 8px-20px) drifting across hero.',
+    heroVariant: 'Centered. Small glowing brand logo mark above brand name. Brand name in gradient. Animated badge ("Now in early access ✦"). Headline. Sub. Email + button. Below form: "X founders already joined" counter in small text.',
+  },
+  {
+    name: 'minimal-beam',
+    layout: 'Ultra-minimal premium feel. Maximum whitespace. Features as clean horizontal rows with a thin left-border accent. Steps minimal with large numerals. FAQ as clean borderless accordion.',
+    geometry: 'Single sweeping light beam: a wide diagonal gradient stripe (accent, opacity 0.08) crossing the hero from top-left to bottom-right, slowly drifting (CSS @keyframes translateX 8s ease-in-out infinite alternate). Plus a very subtle grain/noise texture (SVG feTurbulence filter).',
+    heroVariant: 'Brand name centered at very top (small caps, letter-spacing 0.2em). Huge centered minimal headline (no gradient — crisp white). Thin colored sub-headline. Ghost-style email input (transparent bg, thin accent border). Very minimal.',
+  },
 ];
 
 const PALETTES: Palette[] = [
-  { name: 'indigo', from: '#6366f1', to: '#a855f7', accent: '#6366f1' },
-  { name: 'emerald', from: '#059669', to: '#0d9488', accent: '#10b981' },
-  { name: 'sunset', from: '#f97316', to: '#db2777', accent: '#f97316' },
-  { name: 'ocean', from: '#0284c7', to: '#2563eb', accent: '#0ea5e9' },
-  { name: 'slate', from: '#0f172a', to: '#334155', accent: '#64748b' },
+  { name: 'indigo-violet',  from: '#6366f1', to: '#a855f7', accent: '#818cf8' },
+  { name: 'emerald-teal',   from: '#10b981', to: '#0d9488', accent: '#34d399' },
+  { name: 'orange-rose',    from: '#f97316', to: '#f43f5e', accent: '#fb923c' },
+  { name: 'ocean-cobalt',   from: '#0ea5e9', to: '#4f46e5', accent: '#38bdf8' },
+  { name: 'amber-orange',   from: '#f59e0b', to: '#ea580c', accent: '#fbbf24' },
+  { name: 'violet-cyan',    from: '#7c3aed', to: '#06b6d4', accent: '#a78bfa' },
+  { name: 'rose-pink',      from: '#f43f5e', to: '#ec4899', accent: '#fb7185' },
+  { name: 'lime-emerald',   from: '#84cc16', to: '#059669', accent: '#a3e635' },
+  { name: 'sky-blue',       from: '#0284c7', to: '#2563eb', accent: '#0ea5e9' },
+  { name: 'slate-indigo',   from: '#475569', to: '#4338ca', accent: '#94a3b8' },
 ];
 
 function hash(s: string): number {
@@ -183,150 +225,197 @@ async function generateStrategy(brief: ProductBrief, palette: Palette): Promise<
 
 // ── Stage B: builder — render the strategy into a self-contained HTML page ───
 
-const BUILDER_SYSTEM = `You are a world-class front-end developer and visual designer who builds stunning, modern SaaS landing pages that win design awards. Your pages feel alive — they have depth, motion, and personality.
+const BUILDER_SYSTEM = `You are a world-class front-end developer and visual designer. You build stunning, visually distinct SaaS landing pages — each one looks and feels unique. Pages must feel alive with motion, depth, and personality tailored to the product.
 
-══ STRUCTURE ══
-1. Return ONLY a valid HTML document. No markdown fences, no explanation, no preamble.
-2. <head> must include:
-   - <script src="https://cdn.tailwindcss.com"></script>
+══ MANDATORY OUTPUT RULES ══
+1. Return ONLY a valid HTML document. No markdown, no explanation, nothing outside the HTML.
+2. <head> must contain:
+   - <meta charset="UTF-8">
    - <meta name="viewport" content="width=device-width, initial-scale=1">
-   - A <style> block that MUST start with: *,*::before,*::after{box-sizing:border-box} html,body{margin:0;padding:0;width:100%;overflow-x:hidden}
-   - Every top-level section must be width:100% with NO horizontal margin. Inner content uses a max-width container (max-width:1200px;margin:0 auto;padding:0 1.5rem)
-3. Sections in order — each MUST have both id AND data-section with the same value:
-   - id="hero"          — animated background, headline, sub-headline, email form
-   - id="features"      — glassmorphism benefit cards with SVG icons
-   - id="stats"         — bold stat numbers bar (3 relevant placeholder stats)
-   - id="how-it-works"  — 3 numbered steps with connecting line
-   - id="proof"         — honest credibility section (NO fabricated testimonials/logos/ratings)
-   - id="faq"           — interactive accordion FAQ
-   - id="cta"           — final CTA with glowing email form
-   - id="footer"        — minimal dark footer
+   - <script src="https://cdn.tailwindcss.com"></script>
+   - A <style> block whose FIRST LINE is: *,*::before,*::after{box-sizing:border-box}html,body{margin:0;padding:0;width:100%;overflow-x:hidden;background:#050810}
+3. Every top-level <section> or <div> that wraps a page section must be width:100% with NO horizontal margin on the wrapper itself. Inner content uses a centered container: max-width:1200px;margin:0 auto;padding:0 clamp(1rem,4vw,2rem)
+4. Sections in order, each with BOTH id AND data-section set to the same value:
+   - id="nav"          — sticky glass navbar (no data-section needed)
+   - id="hero"         — full-viewport animated hero
+   - id="features"     — benefit cards
+   - id="stats"        — stat numbers bar
+   - id="how-it-works" — numbered steps
+   - id="proof"        — honest credibility (NO fake testimonials/logos/ratings/counts)
+   - id="faq"          — accordion FAQ
+   - id="cta"          — final email capture
+   - id="footer"       — minimal footer
 
-══ ANIMATIONS & MOTION (MANDATORY — pages without these will be rejected) ══
+══ BRAND IDENTITY (mandatory) ══
+NAVBAR (sticky, appears on every page):
+  - Position: fixed top, full width, z-index:100
+  - Style: background rgba(5,8,16,0.7); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,255,255,0.06)
+  - Left: Brand name as a styled logo — use gradient text (--grad-from → --grad-to) with font-weight:700, font-size:1.2rem, letter-spacing:-0.02em
+  - Right: small ghost CTA button (border: 1px solid accent, text: accent color)
+  - Center or right: 3 smooth-scroll anchor links (Features, How it Works, FAQ) — hidden on mobile
 
-A) ANIMATED GRADIENT ORBS IN HERO:
-   The hero must have position:relative; overflow:hidden; min-height:100vh.
-   Place 3 large orbs as absolute divs BEHIND content (z-index:0, content at z-index:1):
-   <style>
-   @keyframes orb1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,-40px) scale(1.15)}}
-   @keyframes orb2{0%,100%{transform:translate(0,0) scale(1.1)}50%{transform:translate(-50px,60px) scale(0.9)}}
-   @keyframes orb3{0%,100%{transform:translate(0,0)}33%{transform:translate(30px,50px)}66%{transform:translate(-40px,-20px)}}
-   .orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none}
-   .orb-1{width:600px;height:600px;top:-100px;left:-150px;opacity:0.2;animation:orb1 14s ease-in-out infinite}
-   .orb-2{width:500px;height:500px;bottom:-100px;right:-100px;opacity:0.15;animation:orb2 18s ease-in-out infinite}
-   .orb-3{width:350px;height:350px;top:40%;left:50%;opacity:0.1;animation:orb3 22s ease-in-out infinite}
-   </style>
-   Color the orbs using the provided palette gradient colors (from, to, accent).
+BRAND IN HERO:
+  - The brand name must appear PROMINENTLY in the hero — not just the headline.
+  - Options (pick the one that fits the archetype): large gradient logotype above the headline, an animated letter-mark badge, or the brand name as a huge semi-transparent watermark (opacity:0.04, font-size:18vw, position:absolute, pointer-events:none, z-index:0) behind the headline content.
 
-B) SCROLL REVEAL:
-   <style>
-   .reveal{opacity:0;transform:translateY(48px);transition:opacity 0.7s cubic-bezier(.4,0,.2,1),transform 0.7s cubic-bezier(.4,0,.2,1)}
-   .reveal.visible{opacity:1;transform:translateY(0)}
-   .reveal-delay-1{transition-delay:0.1s}.reveal-delay-2{transition-delay:0.2s}.reveal-delay-3{transition-delay:0.3s}.reveal-delay-4{transition-delay:0.4s}
-   </style>
-   Apply class="reveal" to every feature card, step, stat, proof block, FAQ item, and CTA section.
-   Stagger sibling cards with reveal-delay-1/2/3/4.
+══ GEOMETRY & BACKGROUND MOTION ══
+The user message specifies the exact geometry motif for this page. Implement it faithfully.
+Key rules:
+  - The geometry motif appears in the HERO (full intensity), and is ECHOED at reduced scale/opacity in the FEATURES section and CTA section.
+  - All animated elements use CSS @keyframes or lightweight JS — no canvas unless specifically instructed.
+  - Animated elements must have pointer-events:none and must never block text or interactive elements.
+  - Use the provided CSS variables (--accent, --grad-from, --grad-to) for all geometry colors.
 
-C) GLOWING CTA BUTTON:
-   <style>
-   @keyframes pulse-glow{0%,100%{box-shadow:0 0 20px var(--accent,#6366f1)60,0 0 40px var(--accent,#6366f1)25}50%{box-shadow:0 0 35px var(--accent,#6366f1)90,0 0 70px var(--accent,#6366f1)40}}
-   .btn-primary{animation:pulse-glow 2.5s ease-in-out infinite;transition:transform 0.2s,opacity 0.2s}
-   .btn-primary:hover{transform:translateY(-2px);opacity:0.92}
-   </style>
-   Set --accent CSS variable on :root to the palette accent hex. Apply .btn-primary to all CTA submit buttons.
+PARALLAX on hero geometry: add this JS (passive scroll listener, very light):
+<script>
+window.addEventListener('scroll',function(){
+  var s=window.scrollY;
+  document.querySelectorAll('.parallax-slow').forEach(function(el){el.style.transform='translateY('+(s*0.12)+'px)'});
+  document.querySelectorAll('.parallax-fast').forEach(function(el){el.style.transform='translateY('+(s*0.25)+'px)'});
+},{passive:true});
+</script>
+Apply class="parallax-slow" to primary background geometry elements, class="parallax-fast" to secondary ones.
 
-D) GRADIENT HEADLINE TEXT:
-   Hero headline must wrap the key phrase in:
-   <span style="background:linear-gradient(135deg, FROM_COLOR, TO_COLOR);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
-   Font: font-size:clamp(2.8rem,6vw,5.5rem); font-weight:800; letter-spacing:-0.03em; line-height:1.05
+══ SCROLL REVEAL ══
+All sections below the hero reveal on scroll:
+<style>
+.reveal{opacity:0;transform:translateY(44px);transition:opacity 0.75s cubic-bezier(.22,1,.36,1),transform 0.75s cubic-bezier(.22,1,.36,1)}
+.reveal.visible{opacity:1;transform:none}
+.delay-1{transition-delay:.08s}.delay-2{transition-delay:.16s}.delay-3{transition-delay:.24s}.delay-4{transition-delay:.32s}
+</style>
+Apply reveal to: every feature card (stagger with delay-1/2/3/4), every step, the stats section, the proof block, every FAQ item, and the CTA section wrapper.
 
-E) DOT-GRID BACKGROUND TEXTURE (full page):
-   Add as first child of <body>:
-   <div aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:28px 28px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,#000 60%,transparent 100%)"></div>
-   All page content must be position:relative;z-index:1 (or higher).
+══ INTERACTIVE ELEMENTS ══
 
-F) GLASSMORPHISM FEATURE CARDS:
-   <style>
-   .glass-card{background:rgba(255,255,255,0.04);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;transition:transform 0.3s ease,border-color 0.3s ease,box-shadow 0.3s ease;box-shadow:0 4px 24px rgba(0,0,0,0.4)}
-   .glass-card:hover{transform:translateY(-6px);border-color:rgba(255,255,255,0.16);box-shadow:0 12px 40px rgba(0,0,0,0.5)}
-   </style>
-   Apply .glass-card to every feature card.
+GLOWING CTA BUTTON:
+<style>
+@keyframes glow-pulse{0%,100%{box-shadow:0 0 18px color-mix(in srgb,var(--accent) 50%,transparent),0 0 36px color-mix(in srgb,var(--accent) 25%,transparent)}50%{box-shadow:0 0 30px color-mix(in srgb,var(--accent) 75%,transparent),0 0 60px color-mix(in srgb,var(--accent) 35%,transparent)}}
+.btn-primary{background:linear-gradient(135deg,var(--grad-from),var(--grad-to));color:#fff;font-weight:600;border:none;cursor:pointer;animation:glow-pulse 2.5s ease-in-out infinite;transition:transform .2s,filter .2s}
+.btn-primary:hover{transform:translateY(-2px);filter:brightness(1.1)}
+</style>
 
-G) INTERACTIVE FAQ ACCORDION:
-   Each FAQ item is a <div> with a clickable header that toggles the answer. Use JS:
-   <script>
-   document.querySelectorAll('.faq-trigger').forEach(function(btn){
-     btn.addEventListener('click',function(){
-       var item=this.closest('.faq-item');
-       var isOpen=item.classList.contains('open');
-       document.querySelectorAll('.faq-item').forEach(function(el){el.classList.remove('open')});
-       if(!isOpen) item.classList.add('open');
-     });
-   });
-   </script>
-   <style>
-   .faq-answer{max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s ease}
-   .faq-item.open .faq-answer{max-height:300px}
-   .faq-chevron{transition:transform 0.3s ease}
-   .faq-item.open .faq-chevron{transform:rotate(180deg)}
-   </style>
+GLASSMORPHISM CARDS:
+<style>
+.glass-card{background:rgba(255,255,255,0.035);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.07);border-radius:1.25rem;box-shadow:0 4px 24px rgba(0,0,0,0.35);transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease}
+.glass-card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,0.14);box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+</style>
 
-H) STATS BAR (between features and how-it-works):
-   3 bold stats relevant to the product (use realistic but clearly placeholder numbers).
-   Large gradient number (clamp(2.5rem,5vw,4rem), font-weight:800, gradient text) + small label.
-   Subtle dividers between stats. Dark glass background. Reveal animation.
-
-I) NUMBERED STEPS CONNECTOR:
-   The how-it-works steps should have a visual connector (dashed or gradient line) between step numbers on desktop.
-
-══ PALETTE & LAYOUT ══
-- Follow the provided archetype layout note for overall composition.
-- Use the exact palette hex colors (from, to, accent) throughout — not generic Tailwind colors.
-- Page background: #050810 or #030712 (near-black). NEVER use gray-900 as the page base.
-- Section backgrounds: alternate between #050810, #080d1a, and subtle gradient bands.
-- All text on dark: white for headings, rgba(255,255,255,0.65) for body, rgba(255,255,255,0.4) for captions.
-- Feature icons: custom inline SVG (not emoji) colored with the accent, inside a glass-card icon container.
-
-══ EMAIL FORMS ══
-Both forms (hero + cta) must POST JSON to /api/signups: { "slug": "{{SLUG}}", "email": "..." }
-API returns { "success": true/false, "message"/"error": "..." } — check data.success.
-Style the input: dark background, subtle border, focus ring in accent color. Full-width on mobile.
-Show success/error inline below the input. Use ctaText for the button label, ctaSubtext as helper text.
-
-══ ANALYTICS (add once, near </body>) ══
+STATS COUNTER ANIMATION (count up when scrolled into view):
+Use data-target="NUMBER" data-suffix="+" on the number element.
 <script>
 (function(){
-  var t={};
-  var o=new IntersectionObserver(function(e){e.forEach(function(n){var id=n.target.dataset.section;if(n.isIntersecting&&id&&!t[id]){t[id]=true;fetch('/api/analytics/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:'{{SLUG}}',section:id})});}});},{threshold:0.3});
-  document.querySelectorAll('[data-section]').forEach(function(el){o.observe(el);});
-  var r=new IntersectionObserver(function(e){e.forEach(function(n){if(n.isIntersecting)n.target.classList.add('visible');});},{threshold:0.12});
-  document.querySelectorAll('.reveal').forEach(function(el){r.observe(el);});
+  var done=false;
+  new IntersectionObserver(function(e){
+    if(done||!e[0].isIntersecting)return; done=true;
+    document.querySelectorAll('[data-target]').forEach(function(el){
+      var end=+el.dataset.target,suf=el.dataset.suffix||'',dur=1800,s=performance.now();
+      (function t(n){var p=Math.min((n-s)/dur,1),e2=1-Math.pow(1-p,3);el.textContent=Math.round(e2*end).toLocaleString()+suf;if(p<1)requestAnimationFrame(t);})(s);
+    });
+  },{threshold:0.5}).observe(document.getElementById('stats')||document.body);
 })();
 </script>
 
-══ BANNED (automatic failure) ══
-- Flat hero background with no orbs or animation
-- Feature cards without glassmorphism
-- CTA button without glow animation
-- No scroll-reveal on sections below the hero
-- Static FAQ (no accordion)
-- Generic Tailwind gray color scheme
-- Emoji as feature icons
+FAQ ACCORDION:
+<style>
+.faq-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1)}
+.faq-item.open .faq-body{max-height:320px}
+.faq-chevron{transition:transform .35s ease}
+.faq-item.open .faq-chevron{transform:rotate(180deg)}
+</style>
+<script>
+document.querySelectorAll('.faq-trigger').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var item=this.closest('.faq-item'),isOpen=item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(function(i){i.classList.remove('open')});
+    if(!isOpen)item.classList.add('open');
+  });
+});
+</script>
 
-Replace every {{SLUG}} placeholder with the actual slug provided.`;
+══ TYPOGRAPHY ══
+- Hero headline: font-size:clamp(2.8rem,6vw,5.5rem); font-weight:800; letter-spacing:-0.035em; line-height:1.05
+- Gradient on the KEY PHRASE of the headline: background:linear-gradient(135deg,var(--grad-from),var(--grad-to));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text
+- Body: rgba(255,255,255,0.62); font-size:1.05rem; line-height:1.7
+- Section labels (eyebrow text above section titles): font-size:0.75rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); font-weight:600
+
+══ PAGE TEXTURE ══
+Add as the FIRST child of <body> (fixed, non-interactive, subtle):
+<div aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(rgba(255,255,255,0.055) 1px,transparent 1px);background-size:30px 30px;-webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 0%,#000 40%,transparent 100%);mask-image:radial-gradient(ellipse 80% 80% at 50% 0%,#000 40%,transparent 100%)"></div>
+All other page content: position:relative; z-index:1
+
+══ SECTION DESIGN GUIDELINES ══
+- STATS BAR: 3 stats with large gradient counter numbers (data-target + data-suffix), small label, glass-card background, full width, dividers between stats.
+- HOW IT WORKS: numbered steps with large gradient step numerals. On desktop: horizontal with a gradient dashed connector line between numbers.
+- PROOF: honest — "built in public", "early access", founder's context. NO fake social proof.
+- FEATURES: SVG icons (never emoji) in an accent-colored glass icon box. Use the archetype's feature layout (grid / alternating rows / bento / etc.)
+- FOOTER: dark, minimal. Brand name left, links right. Copyright. No clutter.
+
+══ COLOR RULES ══
+- Use CSS variables set in :root for ALL colors (--accent, --grad-from, --grad-to).
+- Page base: #050810. Section alternation: #050810 → #070c18 → gradient band.
+- Text: #fff headings, rgba(255,255,255,0.62) body, rgba(255,255,255,0.38) captions.
+- NEVER use generic Tailwind gray-900 as the page background.
+
+══ EMAIL FORMS (both hero and cta) ══
+POST JSON to /api/signups: { "slug": "{{SLUG}}", "email": "..." }
+Response: { "success": true/false, "message"/"error": "..." } — ALWAYS check data.success.
+Input style: background rgba(255,255,255,0.06), border 1px solid rgba(255,255,255,0.1), focus border var(--accent), border-radius 0.6rem, padding 0.8rem 1.2rem, color white.
+Button: .btn-primary class. Show inline success/error message below the form.
+Use ctaText as button label, ctaSubtext as small helper text under the form.
+
+══ ANALYTICS + REVEAL OBSERVER (add once, near </body>) ══
+<script>
+(function(){
+  var tracked={};
+  var analytics=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      var id=e.target.dataset.section;
+      if(e.isIntersecting&&id&&!tracked[id]){tracked[id]=true;fetch('/api/analytics/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:'{{SLUG}}',section:id})});}
+    });
+  },{threshold:0.3});
+  document.querySelectorAll('[data-section]').forEach(function(el){analytics.observe(el);});
+  var reveal=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible');});
+  },{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(function(el){reveal.observe(el);});
+})();
+</script>
+
+══ BANNED — these make pages look amateur ══
+- Missing sticky glass navbar with brand name
+- Brand name not visible in the hero
+- Flat static hero background (no geometry/animation)
+- Geometry only in hero and nowhere else on the page
+- No parallax on background elements
+- Feature cards without glassmorphism
+- CTA buttons without glow animation
+- No scroll-reveal
+- Static FAQ
+- Emoji as feature icons
+- Generic gray color scheme ignoring the palette
+- Ignoring the archetype layout (every page looking the same)
+
+Replace ALL {{SLUG}} occurrences with the actual slug value from the user message.`;
 
 function buildUserMessage(brief: ProductBrief, slug: string, strategy: Strategy, archetype: Archetype): string {
-  return `Slug (use everywhere {{SLUG}} appears): ${slug}
-Product name: ${brief.name}
+  return `Slug (replace every {{SLUG}}): ${slug}
+Brand name: ${brief.name}
 CTA goal: ${brief.ctaGoal}${brief.price ? `\nPrice point: ${brief.price}` : ''}
 
-Layout archetype: ${archetype.name} — ${archetype.note}
-Color palette: ${strategy.palette.name} (gradient ${strategy.palette.from} → ${strategy.palette.to}, accent ${strategy.palette.accent})
+━━ ARCHETYPE: ${archetype.name} ━━
+Layout: ${archetype.layout}
+Background geometry motif: ${archetype.geometry}
+Hero variant: ${archetype.heroVariant}
 
-MESSAGING PLAN (use this copy; do not invent additional proof):
+━━ COLOR PALETTE: ${strategy.palette.name} ━━
+Gradient: ${strategy.palette.from} → ${strategy.palette.to}
+Accent: ${strategy.palette.accent}
+CSS variable: :root { --accent: ${strategy.palette.accent}; --grad-from: ${strategy.palette.from}; --grad-to: ${strategy.palette.to}; }
+
+━━ MESSAGING PLAN (use this copy exactly — do not fabricate proof) ━━
 ${JSON.stringify(strategy, null, 2)}
 
-Generate the complete HTML landing page now.`;
+Generate the complete HTML landing page now. The archetype layout and geometry MUST be clearly visible — pages that ignore these instructions look generic.`;
 }
 
 async function buildHtml(brief: ProductBrief, slug: string, strategy: Strategy, archetype: Archetype): Promise<string> {
