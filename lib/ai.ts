@@ -2,8 +2,8 @@ import OpenAI from 'openai';
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 // Strategist (copy/positioning) benefits from a stronger model; builder can be cheaper.
-const STRATEGY_MODEL = process.env.STRATEGY_MODEL ?? process.env.GENERATION_MODEL ?? 'gpt-5.4-mini';
-const BUILDER_MODEL = process.env.GENERATION_MODEL ?? 'gpt-5.4';
+const STRATEGY_MODEL = process.env.STRATEGY_MODEL ?? 'gpt-4.1';
+const BUILDER_MODEL = process.env.GENERATION_MODEL ?? 'gpt-4.1-mini';
 
 // ── Product brief: the structured input collected from the user ──────────────
 
@@ -183,54 +183,136 @@ async function generateStrategy(brief: ProductBrief, palette: Palette): Promise<
 
 // ── Stage B: builder — render the strategy into a self-contained HTML page ───
 
-const BUILDER_SYSTEM = `You are an expert front-end developer. You turn a messaging plan into a single, polished, self-contained HTML landing page.
+const BUILDER_SYSTEM = `You are a world-class front-end developer and visual designer who builds stunning, modern SaaS landing pages that win design awards. Your pages feel alive — they have depth, motion, and personality.
 
-HARD REQUIREMENTS — follow exactly:
+══ STRUCTURE ══
 1. Return ONLY a valid HTML document. No markdown fences, no explanation, no preamble.
-2. Include <script src="https://cdn.tailwindcss.com"></script> in <head>.
-3. Include <meta name="viewport" content="width=device-width, initial-scale=1"> in <head>.
-4. Structure the page with these sections in order. Each MUST have both an id AND a data-section attribute with the same value:
-   - id="hero"         — headline, sub-headline, primary CTA (email signup form)
-   - id="features"     — the benefits as 3–4 cards with an icon (SVG or emoji)
-   - id="how-it-works" — the 3 numbered steps
-   - id="proof"        — the honestProof line, framed honestly (NO fabricated testimonials, logos, counts, or ratings)
-   - id="faq"          — the provided FAQ items
-   - id="cta"          — final call-to-action with another email form
-   - id="footer"       — minimal links and copyright
+2. <head> must include:
+   - <script src="https://cdn.tailwindcss.com"></script>
+   - <meta name="viewport" content="width=device-width, initial-scale=1">
+   - A <style> block with all custom CSS (animations, glassmorphism, reveals, glow, accordion)
+3. Sections in order — each MUST have both id AND data-section with the same value:
+   - id="hero"          — animated background, headline, sub-headline, email form
+   - id="features"      — glassmorphism benefit cards with SVG icons
+   - id="stats"         — bold stat numbers bar (3 relevant placeholder stats)
+   - id="how-it-works"  — 3 numbered steps with connecting line
+   - id="proof"         — honest credibility section (NO fabricated testimonials/logos/ratings)
+   - id="faq"           — interactive accordion FAQ
+   - id="cta"           — final CTA with glowing email form
+   - id="footer"        — minimal dark footer
 
-5. Email signup form requirements (BOTH forms in hero and cta must follow this):
-   The form must POST as JSON to /api/signups with body { "slug": "{{SLUG}}", "email": "..." }.
-   The API returns { "success": true, "message": "..." } on success, { "success": false, "error": "..." } on failure.
-   ALWAYS check data.success (not response.ok or data.message) to determine success or failure.
-   Show inline success/error messages. Use the provided ctaText as the submit button label and ctaSubtext beneath it.
+══ ANIMATIONS & MOTION (MANDATORY — pages without these will be rejected) ══
 
-6. Analytics tracking — add this script once, near </body>:
+A) ANIMATED GRADIENT ORBS IN HERO:
+   The hero must have position:relative; overflow:hidden; min-height:100vh.
+   Place 3 large orbs as absolute divs BEHIND content (z-index:0, content at z-index:1):
+   <style>
+   @keyframes orb1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,-40px) scale(1.15)}}
+   @keyframes orb2{0%,100%{transform:translate(0,0) scale(1.1)}50%{transform:translate(-50px,60px) scale(0.9)}}
+   @keyframes orb3{0%,100%{transform:translate(0,0)}33%{transform:translate(30px,50px)}66%{transform:translate(-40px,-20px)}}
+   .orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none}
+   .orb-1{width:600px;height:600px;top:-100px;left:-150px;opacity:0.2;animation:orb1 14s ease-in-out infinite}
+   .orb-2{width:500px;height:500px;bottom:-100px;right:-100px;opacity:0.15;animation:orb2 18s ease-in-out infinite}
+   .orb-3{width:350px;height:350px;top:40%;left:50%;opacity:0.1;animation:orb3 22s ease-in-out infinite}
+   </style>
+   Color the orbs using the provided palette gradient colors (from, to, accent).
+
+B) SCROLL REVEAL:
+   <style>
+   .reveal{opacity:0;transform:translateY(48px);transition:opacity 0.7s cubic-bezier(.4,0,.2,1),transform 0.7s cubic-bezier(.4,0,.2,1)}
+   .reveal.visible{opacity:1;transform:translateY(0)}
+   .reveal-delay-1{transition-delay:0.1s}.reveal-delay-2{transition-delay:0.2s}.reveal-delay-3{transition-delay:0.3s}.reveal-delay-4{transition-delay:0.4s}
+   </style>
+   Apply class="reveal" to every feature card, step, stat, proof block, FAQ item, and CTA section.
+   Stagger sibling cards with reveal-delay-1/2/3/4.
+
+C) GLOWING CTA BUTTON:
+   <style>
+   @keyframes pulse-glow{0%,100%{box-shadow:0 0 20px var(--accent,#6366f1)60,0 0 40px var(--accent,#6366f1)25}50%{box-shadow:0 0 35px var(--accent,#6366f1)90,0 0 70px var(--accent,#6366f1)40}}
+   .btn-primary{animation:pulse-glow 2.5s ease-in-out infinite;transition:transform 0.2s,opacity 0.2s}
+   .btn-primary:hover{transform:translateY(-2px);opacity:0.92}
+   </style>
+   Set --accent CSS variable on :root to the palette accent hex. Apply .btn-primary to all CTA submit buttons.
+
+D) GRADIENT HEADLINE TEXT:
+   Hero headline must wrap the key phrase in:
+   <span style="background:linear-gradient(135deg, FROM_COLOR, TO_COLOR);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+   Font: font-size:clamp(2.8rem,6vw,5.5rem); font-weight:800; letter-spacing:-0.03em; line-height:1.05
+
+E) DOT-GRID BACKGROUND TEXTURE (full page):
+   Add as first child of <body>:
+   <div aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:28px 28px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,#000 60%,transparent 100%)"></div>
+   All page content must be position:relative;z-index:1 (or higher).
+
+F) GLASSMORPHISM FEATURE CARDS:
+   <style>
+   .glass-card{background:rgba(255,255,255,0.04);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;transition:transform 0.3s ease,border-color 0.3s ease,box-shadow 0.3s ease;box-shadow:0 4px 24px rgba(0,0,0,0.4)}
+   .glass-card:hover{transform:translateY(-6px);border-color:rgba(255,255,255,0.16);box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+   </style>
+   Apply .glass-card to every feature card.
+
+G) INTERACTIVE FAQ ACCORDION:
+   Each FAQ item is a <div> with a clickable header that toggles the answer. Use JS:
+   <script>
+   document.querySelectorAll('.faq-trigger').forEach(function(btn){
+     btn.addEventListener('click',function(){
+       var item=this.closest('.faq-item');
+       var isOpen=item.classList.contains('open');
+       document.querySelectorAll('.faq-item').forEach(function(el){el.classList.remove('open')});
+       if(!isOpen) item.classList.add('open');
+     });
+   });
+   </script>
+   <style>
+   .faq-answer{max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s ease}
+   .faq-item.open .faq-answer{max-height:300px}
+   .faq-chevron{transition:transform 0.3s ease}
+   .faq-item.open .faq-chevron{transform:rotate(180deg)}
+   </style>
+
+H) STATS BAR (between features and how-it-works):
+   3 bold stats relevant to the product (use realistic but clearly placeholder numbers).
+   Large gradient number (clamp(2.5rem,5vw,4rem), font-weight:800, gradient text) + small label.
+   Subtle dividers between stats. Dark glass background. Reveal animation.
+
+I) NUMBERED STEPS CONNECTOR:
+   The how-it-works steps should have a visual connector (dashed or gradient line) between step numbers on desktop.
+
+══ PALETTE & LAYOUT ══
+- Follow the provided archetype layout note for overall composition.
+- Use the exact palette hex colors (from, to, accent) throughout — not generic Tailwind colors.
+- Page background: #050810 or #030712 (near-black). NEVER use gray-900 as the page base.
+- Section backgrounds: alternate between #050810, #080d1a, and subtle gradient bands.
+- All text on dark: white for headings, rgba(255,255,255,0.65) for body, rgba(255,255,255,0.4) for captions.
+- Feature icons: custom inline SVG (not emoji) colored with the accent, inside a glass-card icon container.
+
+══ EMAIL FORMS ══
+Both forms (hero + cta) must POST JSON to /api/signups: { "slug": "{{SLUG}}", "email": "..." }
+API returns { "success": true/false, "message"/"error": "..." } — check data.success.
+Style the input: dark background, subtle border, focus ring in accent color. Full-width on mobile.
+Show success/error inline below the input. Use ctaText for the button label, ctaSubtext as helper text.
+
+══ ANALYTICS (add once, near </body>) ══
 <script>
-(function() {
-  var tracked = {};
-  var obs = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      var id = entry.target.dataset.section;
-      if (entry.isIntersecting && id && !tracked[id]) {
-        tracked[id] = true;
-        fetch('/api/analytics/track', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ slug: '{{SLUG}}', section: id })
-        });
-      }
-    });
-  }, { threshold: 0.3 });
-  document.querySelectorAll('[data-section]').forEach(function(el) { obs.observe(el); });
+(function(){
+  var t={};
+  var o=new IntersectionObserver(function(e){e.forEach(function(n){var id=n.target.dataset.section;if(n.isIntersecting&&id&&!t[id]){t[id]=true;fetch('/api/analytics/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:'{{SLUG}}',section:id})});}});},{threshold:0.3});
+  document.querySelectorAll('[data-section]').forEach(function(el){o.observe(el);});
+  var r=new IntersectionObserver(function(e){e.forEach(function(n){if(n.isIntersecting)n.target.classList.add('visible');});},{threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(function(el){r.observe(el);});
 })();
 </script>
 
-7. Design — follow the provided layout archetype and color palette exactly:
-   - Use the palette's gradient (from → to) and accent color for primary buttons and highlights.
-   - Clean typography, generous whitespace, mobile-responsive Tailwind classes, subtle hover effects.
-   - Honor the archetype's layout note for the overall composition.
+══ BANNED (automatic failure) ══
+- Flat hero background with no orbs or animation
+- Feature cards without glassmorphism
+- CTA button without glow animation
+- No scroll-reveal on sections below the hero
+- Static FAQ (no accordion)
+- Generic Tailwind gray color scheme
+- Emoji as feature icons
 
-Replace every {{SLUG}} placeholder with the actual slug value provided.`;
+Replace every {{SLUG}} placeholder with the actual slug provided.`;
 
 function buildUserMessage(brief: ProductBrief, slug: string, strategy: Strategy, archetype: Archetype): string {
   return `Slug (use everywhere {{SLUG}} appears): ${slug}
